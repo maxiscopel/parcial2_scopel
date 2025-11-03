@@ -1,27 +1,11 @@
-package com.example.demo.entities;
+package com.example.demo.dto;
 
-import jakarta.persistence.*;
+public class ProfesorDTO {
 
-@Entity
-public class Profesor {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String nombre;
     private String email;
 
-    // Constructor vacío
-    public Profesor() {}
-
-    // Constructor con parámetros
-    public Profesor(String nombre, String email) {
-        this.nombre = nombre;
-        this.email = email;
-    }
-
-    // Getters y setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

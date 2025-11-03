@@ -24,7 +24,17 @@ public class Curso {
     )
     private List<Estudiante> estudiantes;
 
-    // getters y setters
+    // Constructor vacío
+    public Curso() {}
+
+    // Constructor con parámetros
+    public Curso(String nombre, Profesor profesor, List<Estudiante> estudiantes) {
+        this.nombre = nombre;
+        this.profesor = profesor;
+        this.estudiantes = estudiantes;
+    }
+
+    // Getters y setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

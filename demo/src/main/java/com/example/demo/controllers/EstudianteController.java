@@ -1,11 +1,13 @@
 package com.example.demo.controllers;
 
+import com.example.demo.dto.EstudianteDTO;
 import com.example.demo.entities.Curso;
 import com.example.demo.entities.Estudiante;
 import com.example.demo.repositories.CursoRepository;
 import com.example.demo.repositories.EstudianteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -20,15 +22,36 @@ public class EstudianteController {
 
     // Listar todos los estudiantes
     @GetMapping
-    public List<Estudiante> listarEstudiantes() {
-        return estudianteRepo.findAll();
+    public List<EstudianteDTO> listarEstudiantes() {
+        return estudianteRepo.findAll().stream().map(estudiante -> {
+            EstudianteDTO dto = new EstudianteDTO();
+            dto.setId(estudiante.getId());
+            dto.setNombre(estudiante.getNombre());
+            dto.setMatricula(estudiante.getMatricula());
+            if (estudiante.getCursos() != null) {
+                dto.setCursosNombres(
+                        estudiante.getCursos().stream().map(Curso::getNombre).toList()
+                );
+            }
+            return dto;
+        }).toList();
     }
 
-    // Listar los cursos de un estudiante
+
+    @PostMapping
+    public Estudiante crearEstudiante(@RequestBody EstudianteDTO dto) {
+        Estudiante estudiante = new Estudiante();
+        estudiante.setNombre(dto.getNombre());
+        estudiante.setMatricula(dto.getMatricula());
+        return estudianteRepo.save(estudiante);
+    }
+
+
     @GetMapping("/{estudianteId}/cursos")
-    public List<Curso> cursosDeEstudiante(@PathVariable Long estudianteId) {
+    public List<String> cursosDeEstudiante(@PathVariable Long estudianteId) {
         Estudiante estudiante = estudianteRepo.findById(estudianteId)
                 .orElseThrow(() -> new RuntimeException("Estudiante no encontrado"));
-        return estudiante.getCursos();
+        if (estudiante.getCursos() == null) return List.of();
+        return estudiante.getCursos().stream().map(Curso::getNombre).toList();
     }
 }
