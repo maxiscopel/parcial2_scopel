@@ -1,11 +1,9 @@
 package com.example.demo.controllers;
 
 import com.example.demo.dto.EstudianteDTO;
-import com.example.demo.entities.Curso;
-import com.example.demo.entities.Estudiante;
-import com.example.demo.repositories.CursoRepository;
-import com.example.demo.repositories.EstudianteRepository;
+import com.example.demo.service.EstudianteService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,43 +13,35 @@ import java.util.List;
 public class EstudianteController {
 
     @Autowired
-    private EstudianteRepository estudianteRepo;
+    private EstudianteService estudianteService;
 
-    @Autowired
-    private CursoRepository cursoRepo;
-
-    // Listar todos los estudiantes
     @GetMapping
-    public List<EstudianteDTO> listarEstudiantes() {
-        return estudianteRepo.findAll().stream().map(estudiante -> {
-            EstudianteDTO dto = new EstudianteDTO();
-            dto.setId(estudiante.getId());
-            dto.setNombre(estudiante.getNombre());
-            dto.setMatricula(estudiante.getMatricula());
-            if (estudiante.getCursos() != null) {
-                dto.setCursosNombres(
-                        estudiante.getCursos().stream().map(Curso::getNombre).toList()
-                );
-            }
-            return dto;
-        }).toList();
+    public ResponseEntity<List<EstudianteDTO>> listarEstudiantes() {
+        try {
+            List<EstudianteDTO> lista = estudianteService.listarEstudiantes();
+            return ResponseEntity.ok(lista);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
-
 
     @PostMapping
-    public Estudiante crearEstudiante(@RequestBody EstudianteDTO dto) {
-        Estudiante estudiante = new Estudiante();
-        estudiante.setNombre(dto.getNombre());
-        estudiante.setMatricula(dto.getMatricula());
-        return estudianteRepo.save(estudiante);
+    public ResponseEntity<EstudianteDTO> crearEstudiante(@RequestBody EstudianteDTO dto) {
+        try {
+            EstudianteDTO nuevo = estudianteService.crearEstudiante(dto);
+            return ResponseEntity.ok(nuevo);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-
     @GetMapping("/{estudianteId}/cursos")
-    public List<String> cursosDeEstudiante(@PathVariable Long estudianteId) {
-        Estudiante estudiante = estudianteRepo.findById(estudianteId)
-                .orElseThrow(() -> new RuntimeException("Estudiante no encontrado"));
-        if (estudiante.getCursos() == null) return List.of();
-        return estudiante.getCursos().stream().map(Curso::getNombre).toList();
+    public ResponseEntity<List<String>> cursosDeEstudiante(@PathVariable Long estudianteId) {
+        try {
+            List<String> cursos = estudianteService.cursosDeEstudiante(estudianteId);
+            return ResponseEntity.ok(cursos);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

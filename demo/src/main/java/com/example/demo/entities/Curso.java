@@ -1,6 +1,7 @@
 package com.example.demo.entities;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -12,6 +13,8 @@ public class Curso {
 
     private String nombre;
 
+    private boolean activo = true; // Borrado lógico
+
     @ManyToOne
     @JoinColumn(name = "profesor_id")
     private Profesor profesor;
@@ -22,16 +25,15 @@ public class Curso {
             joinColumns = @JoinColumn(name = "curso_id"),
             inverseJoinColumns = @JoinColumn(name = "estudiante_id")
     )
-    private List<Estudiante> estudiantes;
+    private List<Estudiante> estudiantes = new ArrayList<>(); // Inicializamos
 
-    // Constructor vacío
     public Curso() {}
 
-    // Constructor con parámetros
     public Curso(String nombre, Profesor profesor, List<Estudiante> estudiantes) {
         this.nombre = nombre;
         this.profesor = profesor;
         this.estudiantes = estudiantes;
+        this.activo = true;
     }
 
     // Getters y setters
@@ -46,4 +48,7 @@ public class Curso {
 
     public List<Estudiante> getEstudiantes() { return estudiantes; }
     public void setEstudiantes(List<Estudiante> estudiantes) { this.estudiantes = estudiantes; }
+
+    public boolean isActivo() { return activo; }
+    public void setActivo(boolean activo) { this.activo = activo; }
 }

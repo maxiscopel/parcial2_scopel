@@ -6,6 +6,14 @@ public class ProfesorDTO {
     private String nombre;
     private String email;
 
+    public ProfesorDTO() {}
+
+    public ProfesorDTO(Long id, String nombre, String email) {
+        this.id = id;
+        this.nombre = nombre;
+        this.email = email;
+    }
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

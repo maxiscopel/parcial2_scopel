@@ -1,16 +1,11 @@
 package com.example.demo.controllers;
 
 import com.example.demo.dto.CursoDTO;
-import com.example.demo.entities.Curso;
-import com.example.demo.entities.Estudiante;
-import com.example.demo.entities.Profesor;
-import com.example.demo.repositories.CursoRepository;
-import com.example.demo.repositories.EstudianteRepository;
-import com.example.demo.repositories.ProfesorRepository;
+import com.example.demo.service.CursoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -18,60 +13,45 @@ import java.util.List;
 public class CursoController {
 
     @Autowired
-    private CursoRepository cursoRepo;
-
-    @Autowired
-    private ProfesorRepository profesorRepo;
-
-    @Autowired
-    private EstudianteRepository estudianteRepo;
-
+    private CursoService cursoService;
 
     @GetMapping
-    public List<CursoDTO> listarCursos() {
-        return cursoRepo.findAll().stream().map(curso -> {
-            CursoDTO dto = new CursoDTO();
-            dto.setId(curso.getId());
-            dto.setNombre(curso.getNombre());
-            dto.setProfesorNombre(curso.getProfesor() != null ? curso.getProfesor().getNombre() : null);
-            if (curso.getEstudiantes() != null) {
-                dto.setEstudiantesNombres(
-                        curso.getEstudiantes().stream().map(Estudiante::getNombre).toList()
-                );
-            }
-            return dto;
-        }).toList();
+    public ResponseEntity<List<CursoDTO>> listarCursos() {
+        try {
+            List<CursoDTO> lista = cursoService.listarCursos();
+            return ResponseEntity.ok(lista);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
-
-
-    public static class CursoRequest {
-        public String nombre;
-        public Long profesorId;
-    }
-
 
     @PostMapping
-    public Curso crearCurso(@RequestBody CursoRequest request) {
-        Profesor profesor = profesorRepo.findById(request.profesorId)
-                .orElseThrow(() -> new RuntimeException("Profesor no encontrado"));
-        Curso curso = new Curso();
-        curso.setNombre(request.nombre);
-        curso.setProfesor(profesor);
-        return cursoRepo.save(curso);
+    public ResponseEntity<CursoDTO> crearCurso(@RequestParam String nombre, @RequestParam Long profesorId) {
+        try {
+            CursoDTO dto = cursoService.crearCurso(nombre, profesorId);
+            return ResponseEntity.ok(dto);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-
     @PostMapping("/{cursoId}/estudiantes/{estudianteId}")
-    public Curso asignarEstudiante(@PathVariable Long cursoId, @PathVariable Long estudianteId) {
-        Curso curso = cursoRepo.findById(cursoId)
-                .orElseThrow(() -> new RuntimeException("Curso no encontrado"));
-        Estudiante estudiante = estudianteRepo.findById(estudianteId)
-                .orElseThrow(() -> new RuntimeException("Estudiante no encontrado"));
-
-        if (curso.getEstudiantes() == null) {
-            curso.setEstudiantes(new ArrayList<>());
+    public ResponseEntity<CursoDTO> asignarEstudiante(@PathVariable Long cursoId, @PathVariable Long estudianteId) {
+        try {
+            CursoDTO dto = cursoService.asignarEstudiante(cursoId, estudianteId);
+            return ResponseEntity.ok(dto);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
         }
-        curso.getEstudiantes().add(estudiante);
-        return cursoRepo.save(curso);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminarCurso(@PathVariable Long id) {
+        try {
+            cursoService.eliminarCurso(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

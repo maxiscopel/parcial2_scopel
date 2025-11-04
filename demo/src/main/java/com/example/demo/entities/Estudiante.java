@@ -1,6 +1,7 @@
 package com.example.demo.entities;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -13,8 +14,10 @@ public class Estudiante {
     private String nombre;
     private String matricula;
 
+    private boolean activo = true; // Borrado lógico
+
     @ManyToMany(mappedBy = "estudiantes")
-    private List<Curso> cursos;
+    private List<Curso> cursos = new ArrayList<>(); // Inicializamos
 
     // Getters y setters
     public Long getId() { return id; }
@@ -28,4 +31,7 @@ public class Estudiante {
 
     public List<Curso> getCursos() { return cursos; }
     public void setCursos(List<Curso> cursos) { this.cursos = cursos; }
+
+    public boolean isActivo() { return activo; }
+    public void setActivo(boolean activo) { this.activo = activo; }
 }

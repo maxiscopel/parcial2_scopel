@@ -1,6 +1,8 @@
 package com.example.demo.entities;
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Profesor {
@@ -11,14 +13,17 @@ public class Profesor {
 
     private String nombre;
     private String email;
+    private boolean activo = true; // Borrado lógico
 
-    // Constructor vacío
+    @OneToMany(mappedBy = "profesor")
+    private List<Curso> cursos = new ArrayList<>(); // Relación con cursos
+
     public Profesor() {}
 
-    // Constructor con parámetros
     public Profesor(String nombre, String email) {
         this.nombre = nombre;
         this.email = email;
+        this.activo = true;
     }
 
     // Getters y setters
@@ -30,4 +35,10 @@ public class Profesor {
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+
+    public List<Curso> getCursos() { return cursos; }
+    public void setCursos(List<Curso> cursos) { this.cursos = cursos; }
+
+    public boolean isActivo() { return activo; }
+    public void setActivo(boolean activo) { this.activo = activo; }
 }

@@ -1,9 +1,9 @@
 package com.example.demo.controllers;
 
 import com.example.demo.dto.ProfesorDTO;
-import com.example.demo.entities.Profesor;
-import com.example.demo.repositories.ProfesorRepository;
+import com.example.demo.service.ProfesorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,26 +13,25 @@ import java.util.List;
 public class ProfesorController {
 
     @Autowired
-    private ProfesorRepository profesorRepo;
-
+    private ProfesorService profesorService;
 
     @GetMapping
-    public List<ProfesorDTO> listarProfesores() {
-        return profesorRepo.findAll().stream().map(profesor -> {
-            ProfesorDTO dto = new ProfesorDTO();
-            dto.setId(profesor.getId());
-            dto.setNombre(profesor.getNombre());
-            dto.setEmail(profesor.getEmail());
-            return dto;
-        }).toList();
+    public ResponseEntity<List<ProfesorDTO>> listarProfesores() {
+        try {
+            List<ProfesorDTO> lista = profesorService.listarProfesores();
+            return ResponseEntity.ok(lista);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
-
     @PostMapping
-    public Profesor crearProfesor(@RequestBody ProfesorDTO dto) {
-        Profesor profesor = new Profesor();
-        profesor.setNombre(dto.getNombre());
-        profesor.setEmail(dto.getEmail());
-        return profesorRepo.save(profesor);
+    public ResponseEntity<ProfesorDTO> crearProfesor(@RequestBody ProfesorDTO dto) {
+        try {
+            ProfesorDTO nuevo = profesorService.crearProfesor(dto);
+            return ResponseEntity.ok(nuevo);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }
